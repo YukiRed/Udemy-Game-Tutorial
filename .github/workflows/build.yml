@@ -1,0 +1,55 @@
+name: Unity Build - Windows & WebGL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-windows:
+    name: Build Windows
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Setup Unity
+        uses: game-ci/unity-actions/setup@v2
+        with:
+          unityVersion: 2022.3.2f1 # Replace with your Unity version
+
+      - name: Build Windows
+        uses: game-ci/unity-actions/build@v2
+        with:
+          targetPlatform: StandaloneWindows64
+
+      - name: Upload Windows Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: Windows-Build
+          path: build/StandaloneWindows64/
+
+  build-webgl:
+    name: Build WebGL
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Setup Unity
+        uses: game-ci/unity-actions/setup@v2
+        with:
+          unityVersion: 2022.3.2f1
+
+      - name: Build WebGL
+        uses: game-ci/unity-actions/build@v2
+        with:
+          targetPlatform: WebGL
+
+      - name: Upload WebGL Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: WebGL-Build
+          path: build/WebGL/
