@@ -70,3 +70,7 @@ desktop.ini
 
 # Crashlytics or other analytics
 crashlytics-build.properties
+
+# Ignore temporaries from GameCI
+/[Aa]rtifacts/
+/[Cc]odeCoverage/
