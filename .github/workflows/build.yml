@@ -2,52 +2,45 @@ name: Unity Build - Windows & WebGL
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
 
 jobs:
-  build-windows:
-    name: Build Windows
+  build:
+    name: Build for ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        targetPlatform: [StandaloneWindows64, WebGL]
+
     steps:
-      - name: Checkout project
+      - name: Checkout Repository
         uses: actions/checkout@v3
+
+      - name: Cache Library
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ matrix.targetPlatform }}-${{ github.run_id }}
+          restore-keys: |
+            Library-${{ matrix.targetPlatform }}-
 
       - name: Setup Unity
         uses: game-ci/unity-setup@v2
         with:
           unityVersion: 6000.0.42f1
 
-      - name: Build for Windows
+      - name: Build Project
         uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          targetPlatform: StandaloneWindows64
+          targetPlatform: ${{ matrix.targetPlatform }}
 
-      - name: Upload Windows Build
+      - name: Upload Build Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: Windows-Build
-          path: build/StandaloneWindows64/
-
-  build-webgl:
-    name: Build WebGL
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout project
-        uses: actions/checkout@v3
-
-      - name: Setup Unity
-        uses: game-ci/unity-setup@v2
-        with:
-          unityVersion: 6000.0.42f1
-
-      - name: Build for WebGL
-        uses: game-ci/unity-builder@v4
-        with:
-          targetPlatform: WebGL
-
-      - name: Upload WebGL Build
-        uses: actions/upload-artifact@v3
-        with:
-          name: WebGL-Build
-          path: build/WebGL/
+          name: Build-${{ matrix.targetPlatform }}
+          path: build/${{ matrix.targetPlatform }}
