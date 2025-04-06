@@ -36,12 +36,6 @@ jobs:
           projectPath: .
           githubToken: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v3
-        with:
-          name: TestResults
-          path: artifacts
-
   build-webgl:
     name: 🌐 Build WebGL
     needs: test
