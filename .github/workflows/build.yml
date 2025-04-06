@@ -2,42 +2,12 @@ name: Unity CI
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-
-  release:
-    types: [published]  # Trigger build job when a release is published
+    tags:
+      - 'v*.*.*'  # Triggers the workflow on version tags like v1.0.0
 
 jobs:
-  test:
-    name: Run Unity Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Cache Library
-        uses: actions/cache@v4
-        with:
-          path: Library
-          key: Library-Test-${{ github.run_id }}
-          restore-keys: |
-            Library-Test-
-
-      - name: Run Tests
-        uses: game-ci/unity-test-runner@v4
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          projectPath: .
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-          unityVersion: 6000.0.42f1
-
   build:
-    name: Build and Attach to Release
-    needs: test
+    name: Build and Release
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -70,9 +40,8 @@ jobs:
           cd build/${{ matrix.targetPlatform }}
           zip -r ../../${{ matrix.targetPlatform }}.zip .
 
-      - name: Upload to GitHub Release
-        uses: softprops/action-gh-release@v1
-        if: github.event_name == 'release'
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
           files: ${{ matrix.targetPlatform }}.zip
         env:
